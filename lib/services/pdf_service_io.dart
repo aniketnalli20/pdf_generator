@@ -29,6 +29,19 @@ class PdfService {
     return output.path;
   }
 
+  // Convenience alias for API consistency
+  Future<String?> compress(
+    String inputPath, {
+    int? thresholdSize,
+    int? quality,
+  }) {
+    return compressPath(
+      inputPath,
+      thresholdSize: thresholdSize,
+      quality: quality,
+    );
+  }
+
   Future<String> merge(
     List<String> inputPaths,
     String outputPath,

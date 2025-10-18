@@ -9,6 +9,15 @@ class PdfService {
     return null;
   }
 
+  // Convenience alias for API consistency on unsupported platforms
+  Future<String?> compress(
+    String inputPath, {
+    int? thresholdSize,
+    int? quality,
+  }) async {
+    return null;
+  }
+
   Future<String> merge(
     List<String> inputPaths,
     String outputPath,
