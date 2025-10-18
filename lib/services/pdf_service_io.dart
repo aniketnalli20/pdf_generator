@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:simple_pdf_compression/simple_pdf_compression.dart';
+import 'package:simple_pdf_compression/simple_pdf_compression.dart' as spc;
 import 'package:pdf_combiner/pdf_combiner.dart';
 
 class PdfService {
@@ -21,7 +21,7 @@ class PdfService {
         return inputPath;
       }
     }
-    final output = await compressPdf(
+    final output = await spc.compressPdf(
       file,
       thresholdSize: thresholdSize,
       quality: quality ?? 60,
@@ -51,17 +51,19 @@ class PdfService {
       outputPath: outputPath,
     );
 
-    if (response.status == PdfCombinerStatus.success) {
-      // pdf_combiner returns the merged file path under `response.response` for mergeMultiplePDFs.
-      // Fall back to `outputPath` if the library only returns status.
-      final merged = response.response;
+    // Handle both enum and string-based status representations
+    final status = (response as dynamic).status;
+    final isSuccess = status == 'success' || (status?.toString()?.endsWith('success') == true);
+    if (isSuccess) {
+      final r = response as dynamic;
+      final merged = r.response ?? r.outputPath;
       if (merged is String && merged.isNotEmpty) {
         return merged;
       }
       return outputPath;
     }
 
-    // Bubble up a meaningful error.
-    throw Exception(response.message ?? 'Merge failed');
+    final message = (response as dynamic).message;
+    throw Exception(message ?? 'Merge failed');
   }
 }
