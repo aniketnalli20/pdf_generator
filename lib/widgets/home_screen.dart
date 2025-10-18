@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/pdf_provider.dart';
 import '../services/pdf_service.dart';
-import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,6 +11,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pdf = context.watch<PdfProvider>();
+    final canMerge = !kIsWeb && pdf.files.length >= 2 && pdf.files.every((f) => f.path != null);
+    final canCompress = !kIsWeb && pdf.files.isNotEmpty && pdf.files.every((f) => f.path != null);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.merge_type),
                     label: const Text('Merge'),
-                    onPressed: pdf.files.length >= 2
+                    onPressed: canMerge
                         ? () async {
                             final outputPath = await FilePicker.platform.saveFile(
                               dialogTitle: 'Save merged PDF as',
@@ -101,25 +104,27 @@ class HomeScreen extends StatelessWidget {
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.compress),
                     label: const Text('Compress'),
-                    onPressed: pdf.files.isNotEmpty
+                    onPressed: canCompress
                         ? () async {
                             try {
                               int count = 0;
-                              File? firstOutput;
+                              String? firstOutput;
                               for (final f in pdf.files) {
                                 final path = f.path;
                                 if (path == null) continue;
-                                final output = await const PdfService().compress(
-                                  File(path),
+                                final outputPath = await const PdfService().compressPath(
+                                  path,
                                   quality: 60,
                                 );
-                                firstOutput ??= output;
-                                count++;
+                                if (outputPath != null) {
+                                  firstOutput ??= outputPath;
+                                  count++;
+                                }
                               }
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      'Compressed $count file(s). Sample: ${firstOutput?.path ?? 'n/a'}'),
+                                      'Compressed $count file(s). Sample: ${firstOutput ?? 'n/a'}'),
                                 ),
                               );
                             } catch (e) {

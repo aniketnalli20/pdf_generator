@@ -11,7 +11,7 @@ class PdfProvider extends ChangeNotifier {
       type: FileType.custom,
       allowedExtensions: const ['pdf'],
       allowMultiple: true,
-      withData: false,
+      withData: kIsWeb,
     );
     if (result != null) {
       _files
