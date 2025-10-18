@@ -14,10 +14,17 @@ class PdfService {
     if (!await file.exists()) {
       return null;
     }
+    // Skip compression if a threshold is provided and the file is already small.
+    if (thresholdSize != null) {
+      final size = await file.length();
+      if (size < thresholdSize) {
+        return inputPath;
+      }
+    }
     final output = await compressPdf(
       file,
       thresholdSize: thresholdSize,
-      quality: quality,
+      quality: quality ?? 60,
     );
     return output.path;
   }
@@ -30,14 +37,18 @@ class PdfService {
       inputPaths: inputPaths,
       outputPath: outputPath,
     );
-    // Response handling based on pdf_combiner 4.x
-    if (response.status.name.toLowerCase() == 'success') {
-      // Different versions may expose output file path via 'outputPath' or 'filePath'
-      // Try common fields via toString or known getters
-      final result = response.toString();
-      // Fallback to provided outputPath when library returns only status
+
+    if (response.status == PdfCombinerStatus.success) {
+      // pdf_combiner returns the merged file path under `response.response` for mergeMultiplePDFs.
+      // Fall back to `outputPath` if the library only returns status.
+      final merged = response.response;
+      if (merged is String && merged.isNotEmpty) {
+        return merged;
+      }
       return outputPath;
     }
-    throw Exception('Merge failed: ${response.message ?? response.toString()}');
+
+    // Bubble up a meaningful error.
+    throw Exception(response.message ?? 'Merge failed');
   }
 }
