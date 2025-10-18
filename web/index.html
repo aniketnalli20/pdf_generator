@@ -33,6 +33,19 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <!-- PDF.js required by pdfx plugin on web -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/build/pdf.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    // Configure PDF.js worker and render options for pdfx
+    // See: https://pub.dev/packages/pdfx
+    window.pdfjsLib = window.pdfjsLib || {};
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/build/pdf.worker.min.js";
+    window.pdfRenderOptions = {
+      cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.12.313/cmaps/',
+      cMapPacked: true,
+    };
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
