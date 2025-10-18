@@ -5,17 +5,21 @@ import 'package:pdf_combiner/pdf_combiner.dart';
 class PdfService {
   const PdfService();
 
-  Future<File> compress(
-    File inputPdf, {
+  Future<String?> compressPath(
+    String inputPath, {
     int? thresholdSize,
     int? quality,
   }) async {
+    final file = File(inputPath);
+    if (!await file.exists()) {
+      return null;
+    }
     final output = await spc.compressPdf(
-      inputPdf,
+      file,
       thresholdSize: thresholdSize,
       quality: quality,
     );
-    return output;
+    return output.path;
   }
 
   Future<String> merge(
