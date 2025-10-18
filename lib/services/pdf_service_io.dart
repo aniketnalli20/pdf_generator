@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:simple_pdf_compression/simple_pdf_compression.dart' as spc;
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:pdf_combiner/pdf_combiner.dart';
 
 class PdfService {
@@ -14,19 +14,31 @@ class PdfService {
     if (!await file.exists()) {
       return null;
     }
-    // Skip compression if a threshold is provided and the file is already small.
     if (thresholdSize != null) {
       final size = await file.length();
       if (size < thresholdSize) {
         return inputPath;
       }
     }
-    final output = await spc.compressPdf(
-      file,
-      thresholdSize: thresholdSize,
-      quality: quality ?? 60,
-    );
-    return output.path;
+
+    final bytes = await file.readAsBytes();
+    final document = PdfDocument(inputBytes: bytes);
+
+    // Reduce size by disabling incremental updates and using strong compression
+    document.fileStructure.incrementalUpdate = false;
+    document.compressionLevel = PdfCompressionLevel.best;
+
+    final outBytes = await document.save();
+    document.dispose();
+
+    final dir = file.parent;
+    final name = file.uri.pathSegments.last;
+    final base = name.endsWith('.pdf') ? name.substring(0, name.length - 4) : name;
+    final outPath = dir.path + Platform.pathSeparator + '${base}_compressed.pdf';
+    final outFile = File(outPath);
+    await outFile.writeAsBytes(outBytes, flush: true);
+
+    return outFile.path;
   }
 
   // Convenience alias for API consistency

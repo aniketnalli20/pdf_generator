@@ -16,8 +16,8 @@ void main() {
     // Empty state message
     expect(find.text('No PDFs selected. Tap "Pick PDFs".'), findsOneWidget);
 
-    // Verify themed components exist
-    expect(find.byType(ElevatedButton), findsOneWidget);
-    expect(find.byType(OutlinedButton), findsNWidgets(2));
+    // Verify action icons exist (robust across Material versions)
+    expect(find.byIcon(Icons.merge_type), findsOneWidget);
+    expect(find.byIcon(Icons.compress), findsOneWidget);
   });
 }
