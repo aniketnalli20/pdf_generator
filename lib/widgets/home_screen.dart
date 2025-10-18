@@ -158,11 +158,7 @@ class HomeScreen extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              trailing: IconButton(
-                                tooltip: 'Remove',
-                                onPressed: () => context.read<PdfProvider>().removeAt(index),
-                                icon: const Icon(Icons.close),
-                              ),
+                              // trailing removed as requested
                             );
                           },
                         ),
