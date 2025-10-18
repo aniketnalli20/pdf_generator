@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:simple_pdf_compression/simple_pdf_compression.dart' as spc;
+import 'package:simple_pdf_compression/simple_pdf_compression.dart';
 import 'package:pdf_combiner/pdf_combiner.dart';
 
 class PdfService {
@@ -14,7 +14,7 @@ class PdfService {
     if (!await file.exists()) {
       return null;
     }
-    final output = await spc.compressPdf(
+    final output = await compressPdf(
       file,
       thresholdSize: thresholdSize,
       quality: quality,
