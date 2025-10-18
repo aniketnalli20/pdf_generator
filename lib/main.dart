@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'widgets/home_screen.dart';
 import 'providers/pdf_provider.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(const PdfApp());
@@ -45,7 +46,7 @@ class PdfApp extends StatelessWidget {
           ),
           iconTheme: const IconThemeData(color: Color(0xFF001F3F)),
         ),
-        home: const HomeScreen(),
+        home: SplashScreen(nextScreen: const HomeScreen()),
       ),
     );
   }

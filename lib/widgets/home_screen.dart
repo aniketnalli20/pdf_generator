@@ -11,8 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pdf = context.watch<PdfProvider>();
-    final canMerge = !kIsWeb && pdf.files.length >= 2 && pdf.files.every((f) => f.path != null);
-    final canCompress = !kIsWeb && pdf.files.isNotEmpty && pdf.files.every((f) => f.path != null);
+    final hasValidPaths = pdf.files.every((f) => f.path != null);
 
     return Scaffold(
       appBar: AppBar(
@@ -71,32 +70,46 @@ class HomeScreen extends StatelessWidget {
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.merge_type),
                     label: const Text('Merge'),
-                    onPressed: canMerge
-                        ? () async {
-                            final outputPath = await FilePicker.platform.saveFile(
-                              dialogTitle: 'Save merged PDF as',
-                              fileName: 'merged.pdf',
-                              type: FileType.custom,
-                              allowedExtensions: const ['pdf'],
-                            );
-                            if (outputPath == null) return;
-                            final paths = pdf.files
-                                .map((f) => f.path)
-                                .whereType<String>()
-                                .toList();
-                            try {
-                              final mergedPath = await const PdfService()
-                                  .merge(paths, outputPath);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Merged to: $mergedPath')),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Merge failed: $e')),
-                              );
-                            }
-                          }
-                        : null,
+                    onPressed: () async {
+                      if (kIsWeb) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Merge is not supported on web. Please use Windows or Android.'),
+                          ),
+                        );
+                        return;
+                      }
+                      if (pdf.files.length < 2 || !hasValidPaths) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Select at least two local PDFs with valid file paths.'),
+                          ),
+                        );
+                        return;
+                      }
+                      final outputPath = await FilePicker.platform.saveFile(
+                        dialogTitle: 'Save merged PDF as',
+                        fileName: 'merged.pdf',
+                        type: FileType.custom,
+                        allowedExtensions: const ['pdf'],
+                      );
+                      if (outputPath == null) return;
+                      final paths = pdf.files
+                          .map((f) => f.path)
+                          .whereType<String>()
+                          .toList();
+                      try {
+                        final mergedPath = await const PdfService()
+                            .merge(paths, outputPath);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Merged to: $mergedPath')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Merge failed: $e')),
+                        );
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -104,36 +117,49 @@ class HomeScreen extends StatelessWidget {
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.compress),
                     label: const Text('Compress'),
-                    onPressed: canCompress
-                        ? () async {
-                            try {
-                              int count = 0;
-                              String? firstOutput;
-                              for (final f in pdf.files) {
-                                final path = f.path;
-                                if (path == null) continue;
-                                final outputPath = await const PdfService().compressPath(
-                                  path,
-                                  quality: 60,
-                                );
-                                if (outputPath != null) {
-                                  firstOutput ??= outputPath;
-                                  count++;
-                                }
-                              }
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Compressed $count file(s). Sample: ${firstOutput ?? 'n/a'}'),
-                                ),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Compress failed: $e')),
-                              );
-                            }
+                    onPressed: () async {
+                      if (kIsWeb) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Compress is not supported on web. Please use Windows or Android.'),
+                          ),
+                        );
+                        return;
+                      }
+                      if (pdf.files.isEmpty || !hasValidPaths) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Select one or more local PDFs with valid file paths.'),
+                          ),
+                        );
+                        return;
+                      }
+                      try {
+                        int count = 0;
+                        String? firstOutput;
+                        for (final f in pdf.files) {
+                          final path = f.path;
+                          if (path == null) continue;
+                          final outputPath = await const PdfService().compressPath(
+                            path,
+                            quality: 60,
+                          );
+                          if (outputPath != null) {
+                            firstOutput ??= outputPath;
+                            count++;
                           }
-                        : null,
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Compressed $count file(s). Sample: ${firstOutput ?? 'n/a'}'),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Compress failed: $e')),
+                        );
+                      }
+                    },
                   ),
                 ),
               ],
