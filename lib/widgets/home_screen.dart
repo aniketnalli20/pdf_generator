@@ -262,18 +262,26 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.merge_type),
-                          label: const Text('Merge'),
-                          onPressed: pdf.files.length >= 2 ? () => _mergePdfs(context) : null,
+                        child: Tooltip(
+                          message: kIsWeb ? 'Desktop only' : 'Merge selected PDFs',
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.merge_type),
+                            label: const Text('Merge'),
+                            onPressed: (!kIsWeb && pdf.files.length >= 2)
+                                ? () => _mergePdfs(context)
+                                : null,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.compress),
-                          label: const Text('Compress'),
-                          onPressed: () => _compressPdfs(context),
+                        child: Tooltip(
+                          message: kIsWeb ? 'Desktop only' : 'Compress selected PDFs',
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.compress),
+                            label: const Text('Compress'),
+                            onPressed: !kIsWeb ? () => _compressPdfs(context) : null,
+                          ),
                         ),
                       ),
                     ],
