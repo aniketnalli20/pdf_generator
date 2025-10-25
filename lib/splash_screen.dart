@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // NOTE: For GoogleFonts, add the package and import:
 // import 'package:google_fonts/google_fonts.dart'; 
+import 'gradient_code.dart';
 
 class SplashScreen extends StatefulWidget {
   // Replace HomeScreen with your main app screen
@@ -50,61 +51,64 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF3C52CD),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated App Logo Container
-            ScaleTransition(
-              scale: _animation,
-              child: Container(
-                width: 96.0,
-                height: 96.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24), // Smoother corners
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 12,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.flutter_dash,
-                  size: 72.0,
-                  color: Color(0xFF3C52CD),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            // App Name Text
-            FadeTransition(
-              opacity: _animation,
-              child: Text(
-                'My Flutter App',
-                style: const TextStyle( // Using const for better performance
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
+      // backgroundColor removed in favor of gradient container
+      body: Container(
+        decoration: BoxDecoration(gradient: gradient),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animated App Logo Container
+              ScaleTransition(
+                scale: _animation,
+                child: Container(
+                  width: 96.0,
+                  height: 96.0,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24), // Smoother corners
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 12,
+                        offset: Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.flutter_dash,
+                    size: 72.0,
+                    color: Color(0xFF3C52CD),
+                  ),
                 ),
               ),
-            ),
-                        // Progress Indicator
-            FadeTransition(
-              opacity: _animation,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 50.0),
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 3,
+              const SizedBox(height: 30),
+              // App Name Text
+              FadeTransition(
+                opacity: _animation,
+                child: Text(
+                  'My Flutter App',
+                  style: const TextStyle( // Using const for better performance
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                  ),
                 ),
               ),
-            ),
-          ],
+                          // Progress Indicator
+              FadeTransition(
+                opacity: _animation,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50.0),
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    strokeWidth: 3,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

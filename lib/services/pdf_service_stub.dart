@@ -24,4 +24,12 @@ class PdfService {
   ) async {
     throw UnsupportedError('PdfService is not implemented for this platform.');
   }
+
+  Future<String> mergeAuto(List<String> inputPaths) async {
+    throw UnsupportedError('PdfService is not implemented for this platform.');
+  }
+
+  Future<String> proposeMergeOutputPath(List<String> inputPaths) async {
+    throw UnsupportedError('PdfService is not implemented for this platform.');
+  }
 }

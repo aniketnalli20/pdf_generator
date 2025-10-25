@@ -78,4 +78,43 @@ class PdfService {
     final message = (response as dynamic).message;
     throw Exception(message ?? 'Merge failed');
   }
+
+  // New convenience method: auto-pick output path next to the first input
+  Future<String> mergeAuto(List<String> inputPaths) async {
+    if (inputPaths.isEmpty) {
+      throw ArgumentError('No input PDFs provided');
+    }
+    final first = File(inputPaths.first);
+    if (!await first.exists()) {
+      throw ArgumentError('First input PDF does not exist: ${inputPaths.first}');
+    }
+    final dir = first.parent;
+    var candidate = dir.path + Platform.pathSeparator + 'merged.pdf';
+    var i = 1;
+    while (await File(candidate).exists()) {
+      candidate = dir.path + Platform.pathSeparator + 'merged_$i.pdf';
+      i++;
+      if (i > 999) break; // avoid endless loop
+    }
+    return merge(inputPaths, candidate);
+  }
+
+  Future<String> proposeMergeOutputPath(List<String> inputPaths) async {
+    if (inputPaths.isEmpty) {
+      throw ArgumentError('No input PDFs provided');
+    }
+    final first = File(inputPaths.first);
+    if (!await first.exists()) {
+      throw ArgumentError('First input PDF does not exist: ${inputPaths.first}');
+    }
+    final dir = first.parent;
+    var candidate = dir.path + Platform.pathSeparator + 'merged.pdf';
+    var i = 1;
+    while (await File(candidate).exists()) {
+      candidate = dir.path + Platform.pathSeparator + 'merged_$i.pdf';
+      i++;
+      if (i > 999) break;
+    }
+    return candidate;
+  }
 }

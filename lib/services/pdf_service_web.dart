@@ -26,4 +26,12 @@ class PdfService {
   ) async {
     throw UnsupportedError('Merging PDFs is not supported on web in this build.');
   }
+
+  Future<String> mergeAuto(List<String> inputPaths) async {
+    throw UnsupportedError('Merging PDFs is not supported on web in this build.');
+  }
+
+  Future<String> proposeMergeOutputPath(List<String> inputPaths) async {
+    throw UnsupportedError('Merging PDFs is not supported on web in this build.');
+  }
 }
