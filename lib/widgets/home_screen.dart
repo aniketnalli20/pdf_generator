@@ -263,7 +263,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Tooltip(
-                          message: kIsWeb ? 'Desktop only' : 'Merge selected PDFs',
+                          message: kIsWeb ? 'Backend required for merge on web' : 'Merge selected PDFs',
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.merge_type),
                             label: const Text('Merge'),
@@ -275,13 +275,41 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Tooltip(
-                          message: kIsWeb ? 'Desktop only' : 'Compress selected PDFs',
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.compress),
-                            label: const Text('Compress'),
-                            onPressed: !kIsWeb ? () => _compressPdfs(context) : null,
-                          ),
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.compress),
+                          label: const Text('Compress'),
+                          onPressed: () async {
+                            if (!kIsWeb) {
+                              await _compressPdfs(context);
+                              return;
+                            }
+                            // Web: build data URIs and call web service to trigger downloads
+                            final pdf = context.read<PdfProvider>();
+                            if (pdf.files.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Select PDFs to compress')),
+                              );
+                              return;
+                            }
+                            int compressed = 0;
+                            for (final f in pdf.files) {
+                              if (f.bytes != null && f.bytes!.isNotEmpty) {
+                                final dataUri = Uri.dataFromBytes(
+                                  f.bytes!,
+                                  mimeType: 'application/pdf',
+                                  base64: true,
+                                ).toString();
+                                final result = await PdfService().compressPath(
+                                  dataUri,
+                                  quality: 50,
+                                );
+                                if (result != null) compressed++;
+                              }
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Compressed $compressed file(s)')),
+                            );
+                          },
                         ),
                       ),
                     ],
