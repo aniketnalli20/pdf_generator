@@ -18,11 +18,38 @@ class HomeScreen extends StatelessWidget {
   Future<void> _mergePdfs(BuildContext context) async {
     final pdf = context.read<PdfProvider>();
     
-    // Check platform support
+    // Web: merge using data URIs and trigger browser download
     if (kIsWeb) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Merge not supported on web platform')),
-      );
+      if (pdf.files.length < 2) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Select at least 2 PDFs to merge')),
+        );
+        return;
+      }
+      try {
+        final dataUris = pdf.files
+            .where((f) => f.bytes != null && f.bytes!.isNotEmpty)
+            .map((f) => Uri.dataFromBytes(
+                  f.bytes!,
+                  mimeType: 'application/pdf',
+                  base64: true,
+                ).toString())
+            .toList();
+        if (dataUris.length < 2) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No readable PDF data found')),
+          );
+          return;
+        }
+        final filename = await PdfService().mergeAuto(dataUris);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Merged to: $filename (downloaded)')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Merge failed: $e')),
+        );
+      }
       return;
     }
 
@@ -62,7 +89,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text('Files to merge: ${pdf.files.length}'),
               const SizedBox(height: 8),
-              Text('Output: ${outputPath.split('\\').last}'),
+              Text('Output: ${outputPath.split('\\').last}')
             ],
           ),
           actions: [
@@ -263,11 +290,11 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Tooltip(
-                          message: kIsWeb ? 'Backend required for merge on web' : 'Merge selected PDFs',
+                          message: 'Merge selected PDFs',
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.merge_type),
                             label: const Text('Merge'),
-                            onPressed: (!kIsWeb && pdf.files.length >= 2)
+                            onPressed: (pdf.files.length >= 2)
                                 ? () => _mergePdfs(context)
                                 : null,
                           ),

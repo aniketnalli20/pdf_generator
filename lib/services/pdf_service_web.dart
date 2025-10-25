@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:ui' show Offset;
 import 'dart:typed_data';
 import 'dart:html' as html;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -30,7 +30,6 @@ class PdfService {
 
       final blob = html.Blob([outBytes], 'application/pdf');
       final url = html.Url.createObjectUrlFromBlob(blob);
-      // Suggest a filename using timestamp
       final filename = 'compressed_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final anchor = html.AnchorElement(href: url)
         ..download = filename
@@ -54,21 +53,66 @@ class PdfService {
     return compressPath(inputPath, thresholdSize: thresholdSize, quality: quality);
   }
 
-  // For web, merging multiple PDFs requires a backend or a more advanced client-side parser.
-  // This method prepares for backend-based merge: send data URIs to your API and trigger download of the merged file.
+  // Web merge: accepts a list of data URIs, combines pages via template approach, and triggers download
   Future<String> merge(
     List<String> inputPaths,
     String outputPath,
   ) async {
-    throw UnsupportedError('Merging PDFs is not supported on web in this build. Consider backend-based merge.');
+    if (inputPaths.length < 2) {
+      throw ArgumentError('Need at least 2 PDFs to merge');
+    }
+    try {
+      final PdfDocument newDocument = PdfDocument();
+      PdfSection? section;
+
+      for (final path in inputPaths) {
+        final uri = Uri.parse(path);
+        if (uri.data == null) {
+          throw ArgumentError('Invalid data URI in inputPaths');
+        }
+        final Uint8List bytes = uri.data!.contentAsBytes();
+        final PdfDocument loaded = PdfDocument(inputBytes: bytes);
+
+        for (int i = 0; i < loaded.pages.count; i++) {
+          final template = loaded.pages[i].createTemplate();
+          // Create a new section if page settings differ
+          if (section == null || section.pageSettings.size != template.size) {
+            section = newDocument.sections!.add();
+            section.pageSettings.size = template.size;
+            section.pageSettings.margins.all = 0;
+          }
+          section.pages.add().graphics.drawPdfTemplate(template, const Offset(0, 0));
+        }
+        loaded.dispose();
+      }
+
+      final outBytes = await newDocument.save();
+      newDocument.dispose();
+
+      final blob = html.Blob([outBytes], 'application/pdf');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final filename = outputPath.isNotEmpty
+          ? outputPath
+          : 'merged_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final anchor = html.AnchorElement(href: url)
+        ..download = filename
+        ..style.display = 'none';
+      html.document.body?.append(anchor);
+      anchor.click();
+      anchor.remove();
+      html.Url.revokeObjectUrl(url);
+      return filename;
+    } catch (e) {
+      throw Exception('Web merge failed: $e');
+    }
   }
 
   Future<String> mergeAuto(List<String> inputPaths) async {
-    throw UnsupportedError('Merging PDFs is not supported on web in this build. Consider backend-based merge.');
+    final suggested = 'merged_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    return merge(inputPaths, suggested);
   }
 
   Future<String> proposeMergeOutputPath(List<String> inputPaths) async {
-    // Suggest a generic name for web
     return 'merged_${DateTime.now().millisecondsSinceEpoch}.pdf';
   }
 }
