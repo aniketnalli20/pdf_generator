@@ -34,7 +34,7 @@ class PdfService {
     final dir = file.parent;
     final name = file.uri.pathSegments.last;
     final base = name.endsWith('.pdf') ? name.substring(0, name.length - 4) : name;
-    final outPath = dir.path + Platform.pathSeparator + '${base}_compressed.pdf';
+    final outPath = '${dir.path}${Platform.pathSeparator}${base}_compressed.pdf';
     final outFile = File(outPath);
     await outFile.writeAsBytes(outBytes, flush: true);
 
@@ -65,7 +65,7 @@ class PdfService {
 
     // Handle both enum and string-based status representations
     final status = (response as dynamic).status;
-    final isSuccess = status == 'success' || (status?.toString()?.endsWith('success') == true);
+    final isSuccess = status == 'success' || (status?.toString().endsWith('success') == true);
     if (isSuccess) {
       final r = response as dynamic;
       final merged = r.response ?? r.outputPath;
@@ -89,10 +89,10 @@ class PdfService {
       throw ArgumentError('First input PDF does not exist: ${inputPaths.first}');
     }
     final dir = first.parent;
-    var candidate = dir.path + Platform.pathSeparator + 'merged.pdf';
+    var candidate = '${dir.path}${Platform.pathSeparator}merged.pdf';
     var i = 1;
     while (await File(candidate).exists()) {
-      candidate = dir.path + Platform.pathSeparator + 'merged_$i.pdf';
+      candidate = '${dir.path}${Platform.pathSeparator}merged_$i.pdf';
       i++;
       if (i > 999) break; // avoid endless loop
     }
@@ -108,10 +108,10 @@ class PdfService {
       throw ArgumentError('First input PDF does not exist: ${inputPaths.first}');
     }
     final dir = first.parent;
-    var candidate = dir.path + Platform.pathSeparator + 'merged.pdf';
+    var candidate = '${dir.path}${Platform.pathSeparator}merged.pdf';
     var i = 1;
     while (await File(candidate).exists()) {
-      candidate = dir.path + Platform.pathSeparator + 'merged_$i.pdf';
+      candidate = '${dir.path}${Platform.pathSeparator}merged_$i.pdf';
       i++;
       if (i > 999) break;
     }
