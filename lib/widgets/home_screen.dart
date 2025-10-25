@@ -239,7 +239,7 @@ class HomeScreen extends StatelessWidget {
                             return ListTile(
                               key: ValueKey('file-$index-${f.name}-${f.path}'),
                               leading: const Icon(Icons.picture_as_pdf),
-                              title: Text(f.name ?? 'PDF'),
+                              title: Text(f.name),
                               subtitle: f.path != null && f.path!.isNotEmpty
                                   ? Text(
                                       f.path!,
