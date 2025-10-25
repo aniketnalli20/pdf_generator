@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 // NOTE: For GoogleFonts, add the package and import:
-// import 'package:google_fonts/google_fonts.dart'; 
+// import 'package:google_fonts/google_fonts.dart';
 import 'gradient_code.dart';
 
 class SplashScreen extends StatefulWidget {
   // Replace HomeScreen with your main app screen
-  final Widget nextScreen; 
+  final Widget nextScreen;
   const SplashScreen({super.key, required this.nextScreen});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> 
+class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -28,14 +28,14 @@ class _SplashScreenState extends State<SplashScreen>
       parent: _animationController,
       curve: Curves.elasticOut, // Using elasticOut for a nicer effect
     );
-    
+
     _animationController.forward();
     _navigateToHome();
   }
 
   _navigateToHome() async {
     // Delay for a total of 3 seconds
-    await Future.delayed(const Duration(milliseconds: 3000)); 
+    await Future.delayed(const Duration(milliseconds: 3000));
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => widget.nextScreen),
@@ -87,8 +87,9 @@ class _SplashScreenState extends State<SplashScreen>
               FadeTransition(
                 opacity: _animation,
                 child: Text(
-                  'My Flutter App',
-                  style: const TextStyle( // Using const for better performance
+                  'PDF GEN',
+                  style: const TextStyle(
+                    // Using const for better performance
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -96,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ),
-                          // Progress Indicator
+              // Progress Indicator
               FadeTransition(
                 opacity: _animation,
                 child: Padding(

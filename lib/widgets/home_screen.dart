@@ -165,14 +165,39 @@ class HomeScreen extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              // trailing removed as requested
+                              trailing: IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => context.read<PdfProvider>().remove(index),
+                                tooltip: 'Remove',
+                              ),
                             );
                           },
                         ),
                 ),
                 const SizedBox(height: 12),
-                // Only 'Upload Files' remains; other actions removed
-                const SizedBox(height: 4),
+                // Action buttons for merge and compress
+                if (pdf.files.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.merge_type),
+                          label: const Text('Merge'),
+                          onPressed: pdf.files.length >= 2 ? merge : null,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.compress),
+                          label: const Text('Compress'),
+                          onPressed: compress,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                ],
               ],
             ),
           ),
