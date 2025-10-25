@@ -42,10 +42,9 @@ class HomeScreen extends StatelessWidget {
             title: const Text('Merge PDFs'),
             content: Text('Merge to: $outputPath'),
             actions: [
-              if (!kIsWeb &&
-                  (defaultTargetPlatform == TargetPlatform.windows ||
-                      defaultTargetPlatform == TargetPlatform.macOS ||
-                      defaultTargetPlatform == TargetPlatform.linux))
+              if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.windows ||
+                  defaultTargetPlatform == TargetPlatform.macOS ||
+                  defaultTargetPlatform == TargetPlatform.linux))
                 TextButton(
                   onPressed: () async {
                     final newPath = await FilePicker.platform.saveFile(
@@ -78,14 +77,14 @@ class HomeScreen extends StatelessWidget {
 
         if (confirmed == true) {
           await PdfService().merge(pdf.files, outputPath);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Merged to: $outputPath')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Merged to: $outputPath')),
+          );
         }
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Merge failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Merge failed: $e')),
+        );
       }
     }
 
@@ -107,10 +106,7 @@ class HomeScreen extends StatelessWidget {
       try {
         for (final file in pdf.files) {
           if (file.path != null) {
-            final result = await PdfService().compressPath(
-              file.path!,
-              quality: 50,
-            );
+            final result = await PdfService().compressPath(file.path!, quality: 50);
             if (result != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Compressed: ${file.name}')),
@@ -119,14 +115,23 @@ class HomeScreen extends StatelessWidget {
           }
         }
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Compress failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Compress failed: $e')),
+        );
       }
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('PDF Assistant')),
+      appBar: AppBar(
+        title: const Text('PDF Assistant'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear_all),
+            onPressed: pdf.files.isEmpty ? null : () => context.read<PdfProvider>().clear(),
+            tooltip: 'Clear all',
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(gradient: gradient),
         child: SafeArea(
@@ -144,9 +149,7 @@ class HomeScreen extends StatelessWidget {
                 Expanded(
                   child: pdf.files.isEmpty
                       ? const Center(
-                          child: Text(
-                            'No PDFs selected. Tap "Upload Files" to start.',
-                          ),
+                          child: Text('No PDFs selected. Tap "Upload Files" to start.'),
                         )
                       : ReorderableListView.builder(
                           itemCount: pdf.files.length,
